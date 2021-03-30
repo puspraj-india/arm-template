@@ -1,0 +1,139 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "logicappName": {
+            "type": "string",
+            "metadata": {
+                "description": "Logic app name"
+            },
+            "defaultValue":"arm-la"
+        }
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+ {
+     "name": "[parameters('logicappName')]",
+     "type": "Microsoft.Web/sites",
+     "apiVersion": "2018-11-01",
+     "location": "[resourceGroup().location]",
+     "kind": "functionapp,workflowapp",
+     "dependsOn": [
+         "[resourceId('Microsoft.Web/serverfarms', parameters('logicappName'))]",
+         "[resourceId('Microsoft.Storage/storageAccounts', parameters('logicappName'))]"
+     ],
+     "properties": {
+         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('logicappName'))]",
+         "siteConfig": {
+             "appSettings": [
+                //  {
+                //      "name": "AzureWebJobsDashboard",
+                //      "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('logicappName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts',parameters('logicappName')),'2015-05-01-preview').key1)]"
+                //  },
+                 {
+                     "name": "AzureWebJobsStorage",
+                     "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('logicappName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts',parameters('logicappName')),'2019-06-01').keys[0].value,';EndpointSuffix=core.windows.net')]"
+                 },
+                 {
+                     "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                     "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('logicappName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts',parameters('logicappName')),'2019-06-01').keys[0].value,';EndpointSuffix=core.windows.net')]"
+                 },
+                 {
+                     "name": "WEBSITE_CONTENTSHARE",
+                     "value": "[toLower(parameters('logicappName'))]"
+                 },
+                 {
+                     "name": "FUNCTIONS_EXTENSION_VERSION",
+                     "value": "~3"
+                 },
+                //  {
+                //      "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                //      "value": "[reference(resourceId('microsoft.insights/components/', ''), '2015-05-01').InstrumentationKey]"
+                //  },
+
+
+
+                // {
+                //             "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                //             "value": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightName')), '2015-05-01').ConnectionString]"
+                // },
+
+
+                 {
+                     "name": "FUNCTIONS_WORKER_RUNTIME",
+                     "value": "dotnet"
+                 },
+                 {
+                     "name":"APP_KIND",
+                     "value":"workflowApp"
+                 },
+                 {
+                     "name": "AzureFunctionsJobHost__extensionBundle__id",
+                     "value":"Microsoft.Azure.Functions.ExtensionBundle.Workflows"
+                 },
+                 {
+                     "name": "AzureFunctionsJobHost__extensionBundle__version",
+                     "value": "[1.*, 2.0.0)"
+                 },
+                 {
+                     "name": "FUNCTIONS_V2_COMPATIBILITY_MODE",
+                     "value":"true"
+                 },
+                 {
+                        "name": "WEBSITE_VNET_ROUTE_ALL",
+                        "value": "1"
+                },
+                {
+                        "name": "WEBSITE_DNS_SERVER",
+                        "value": "168.63.129.16"
+                }
+             ],
+             "use32BitWorkerProcess": true,
+             "cors": {
+                        "allowedOrigins": [
+                            "https://afd.hosting.portal.azure.net",
+                            "https://afd.hosting-ms.portal.azure.net",
+                            "https://hosting.portal.azure.net",
+                            "https://ms.hosting.portal.azure.net",
+                            "https://ema-ms.hosting.portal.azure.net",
+                            "https://ema.hosting.portal.azure.net"
+                        ]
+                    }
+                    
+         }
+     },
+     "identity": {
+         "type": "SystemAssigned"
+     }
+ },
+{
+    "name": "[parameters('logicappName')]",
+    "type": "Microsoft.Web/serverfarms",
+    "apiVersion": "2018-02-01",
+    "location": "[resourceGroup().location]",
+    "sku": {
+        "name": "F1",
+        "capacity": 0
+    },
+    "properties": {
+        "name": "[parameters('logicappName')]"
+    },
+    "dependsOn":[
+        "[resourceId('Microsoft.Storage/storageAccounts',parameters('logicappName'))]"
+    ]
+},
+{
+    "name": "[parameters('logicappName')]",
+    "type": "Microsoft.Storage/storageAccounts",
+    "apiVersion": "2019-06-01",
+    "location": "[resourceGroup().location]",
+    "kind": "StorageV2",
+    "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+    }
+}
+    ],
+    "outputs": {}
+}
