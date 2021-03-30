@@ -1,0 +1,60 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vnetName": {
+            "type": "string",
+            "defaultValue":"arm-vnet-test"
+        }
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+         {
+             "name": "[parameters('vnetName')]",
+             "type": "Microsoft.Network/virtualNetworks",
+             "apiVersion": "2019-11-01",
+             "location": "[resourceGroup().location]",
+             "properties": {
+                 "addressSpace": {
+                     "addressPrefixes": [
+                         "10.10.0.0/16"
+                     ]
+                 },
+                 "subnets": [
+                     {
+                         "name": "Subnet-1",
+                         "properties": {
+                             "addressPrefix": "10.10.0.0/27"
+                         }
+                     },
+                     {
+                         "name": "Subnet-2",
+                         "properties": {
+                             "addressPrefix": "10.10.0.32/27"
+                         }
+                     },
+                     {
+                         "name": "Subnet-3",
+                         "properties": {
+                             "addressPrefix": "10.10.0.64/27"
+                         }
+                     },
+                     {
+                         "name": "Subnet-4",
+                         "properties": {
+                             "addressPrefix": "10.10.0.96/27"
+                         }
+                     },
+                     {
+                         "name": "Subnet-5",
+                         "properties": {
+                             "addressPrefix": "10.10.0.128/27"
+                         }
+                     }
+                 ]
+             }
+         }
+    ],
+    "outputs": {}
+}
